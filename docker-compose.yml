@@ -13,7 +13,7 @@ networks:
 services:
   database:
     container_name: opennms.psql
-    image: postgres:9.6.1
+    image: postgres:9.6.3
     env_file:
       - .postgres.env
     networks:
@@ -25,7 +25,7 @@ services:
 
   opennms:
     container_name: opennms.hzn.core.web
-    image: opennms/horizon-core-web:20.0.1-1
+    image: opennms/horizon-core-web:latest
     env_file:
       - .opennms.env
       - .postgres.env
