@@ -5,6 +5,7 @@
 ## Supported tags
 
 * `latest`, latest develop release Horizon 21
+* `20.1.0-1`, stable Horizon 20
 * `20.0.2-1`, stable Horizon 20
 * `20.0.1-1`, stable Horizon 20
 * `20.0.0-1`, stable Horizon 20
@@ -21,6 +22,12 @@
 * CentOS 7 with OpenJDK 8u144-jdk
 * Official PostgreSQL 9.6.3
 * Horizon daily develop snapshot
+
+### 20.1.0-1
+
+* CentOS 7 with OpenJDK 8u144-jdk
+* Official PostgreSQL 9.6.3
+* Horizon 20.1.0-1
 
 ### 20.0.2-1
 

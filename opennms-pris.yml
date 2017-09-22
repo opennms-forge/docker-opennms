@@ -15,7 +15,7 @@ networks:
 services:
   database:
     container_name: opennms.psql
-    image: postgres:9.6.1
+    image: postgres:9.6.3
     environment:
       - TZ=Europe/Berlin
     env_file:
