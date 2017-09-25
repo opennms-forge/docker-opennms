@@ -4,8 +4,8 @@
 
 ## Supported tags
 
-* `latest`, latest develop release Horizon 21
-* `20.1.0-1`, stable Horizon 20
+* `latest`, daily bleeding edge develop release Horizon 21
+* `20.1.0-1`, `stable`, latest stable Horizon 20
 * `20.0.2-1`, stable Horizon 20
 * `20.0.1-1`, stable Horizon 20
 * `20.0.0-1`, stable Horizon 20
