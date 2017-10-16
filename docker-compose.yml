@@ -5,6 +5,8 @@ volumes:
     driver: local
   opennms.data:
     driver: local
+  opennms.etc:
+    driver: local
 
 networks:
   opennms.net:
@@ -34,7 +36,7 @@ services:
     depends_on:
       - database
     volumes:
-      - opennms.data:/opt/opennms/etc
+      - opennms.etc:/opt/opennms/etc
       - opennms.data:/opennms-data
     command: ["-s"]
     ports:
