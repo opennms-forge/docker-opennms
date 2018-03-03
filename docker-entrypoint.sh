@@ -19,6 +19,9 @@ OPENNMS_CONFIGURED_GUARD=${OPENNMS_HOME}/etc/configured
 OPENNMS_KARAF_TPL=/root/org.apache.karaf.shell.cfg.tpl
 OPENNMS_KARAF_CFG=${OPENNMS_HOME}/etc/org.apache.karaf.shell.cfg
 
+OPENNMS_NEWTS_TPL=/root/opennms-newts-config.properties.tpl
+OPENNMS_NEWTS_PROPERTIES=${OPENNMS_HOME}/etc/opennms.properties.d/opennms-newts-config.properties
+
 # Error codes
 E_ILLEGAL_ARGS=126
 
@@ -37,6 +40,9 @@ usage() {
   echo "-i: Initialize Java environment, database and pristine OpenNMS configuration files and do *NOT* start OpenNMS."
   echo "    The database and config file initialization is skipped when a configured file exist."
   echo "-s: Initialize environment like -i and start OpenNMS in foreground."
+  echo "-n: Initialize newts (cassandra) as well the initialisations steps in -i above."
+  echo "    Initialization is skipped when a configured file exist."
+  echo "-c: Initialize environment like -n and start OpenNMS in foreground using newts (cassandra)."
   echo "-t options: Run the config-tester, default is -h to show usage."
   echo ""
 }
@@ -71,6 +77,15 @@ initConfig() {
     ${OPENNMS_HOME}/bin/runjava -s
     ${OPENNMS_HOME}/bin/install -dis
   fi
+}
+
+# run after initConfig to add cassandra/newts configuration
+initNewtsConfig() {
+  #re-initialising existing tables has no effect in newts so don't worry about guard
+  echo "Initialize newts configuration and install newts keyspace in cassandra if not already initialised."
+  envsubst < ${OPENNMS_NEWTS_TPL} > ${OPENNMS_NEWTS_PROPERTIES}
+  ${OPENNMS_HOME}/bin/runjava -s
+  ${OPENNMS_HOME}/bin/newts init
 }
 
 applyOverlayConfig() {
@@ -112,7 +127,7 @@ if [[ "${#}" == 0 ]]; then
 fi
 
 # Evaluate arguments for build script.
-while getopts "fhist" flag; do
+while getopts "fhisnct" flag; do
   case ${flag} in
     f)
       applyOverlayConfig
@@ -131,6 +146,23 @@ while getopts "fhist" flag; do
       ;;
     s)
       initConfig
+      applyOverlayConfig
+      doInitOrUpgrade
+      start
+      exit
+      ;;
+    n)
+      echo "configuring opennms to use newts cassandra"
+      initConfig
+      initNewtsConfig
+      applyOverlayConfig
+      doInitOrUpgrade
+      exit
+      ;;
+    c)
+      echo "starting opennms with newts cassandra"
+      initConfig
+      initNewtsConfig
       applyOverlayConfig
       doInitOrUpgrade
       start

@@ -1,3 +1,4 @@
 .idea/
 etc-overlay/
 *.iml
+/.project

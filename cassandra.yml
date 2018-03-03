@@ -1,0 +1,38 @@
+version: '3.0'
+
+volumes:
+  psql.data:
+    driver: local
+  opennms.data:
+    driver: local
+  opennms.etc:
+    driver: local
+  cassandra1-data:
+    driver: local
+
+networks:
+  opennms.net:
+    driver: bridge
+
+services:
+
+  # data stax cassandra
+  cassandra1:
+     container_name: cassandra1
+     image: cassandra:3.10
+     command: /bin/bash -c "sleep 1 && echo ' -- Pausing to let system catch up ... -->' && /docker-entrypoint.sh cassandra -f"
+     volumes:
+        -  cassandra1-data:/var/lib/cassandra
+        - ./cassandra-conf/jvm.options:/etc/cassandra/jvm.options
+     ports:
+        - "7000:7000"
+        - "7001:7001"
+        - "9042:9042"
+        - "9160:9160"
+        - "7199:7199"
+        
+     healthcheck:
+        test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
+        interval: 30s
+        timeout: 10s
+        retries: 5

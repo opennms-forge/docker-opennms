@@ -1,0 +1,108 @@
+version: '3.0'
+
+volumes:
+  psql.data:
+    driver: local
+  opennms.data:
+    driver: local
+  opennms.etc:
+    driver: local
+  helm.data:
+    driver: local
+  cassandra1-data:
+    driver: local
+
+networks:
+  opennms.net:
+    driver: bridge
+
+services:
+  database:
+    container_name: opennms.psql
+    image: postgres:9.6
+    env_file:
+      - .postgres.env
+    networks:
+      - opennms.net
+    volumes:
+      - psql.data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    ports:
+      - "5432:5432"
+
+  opennms:
+    container_name: opennms.hzn.core.web
+    image: opennms/horizon-core-web:bleeding
+    env_file:
+      - .opennms.env
+      - .postgres.env
+    networks:
+      - opennms.net
+    depends_on:
+      - cassandra1
+      - database
+
+    volumes:
+      - opennms.etc:/opt/opennms/etc
+      - opennms.data:/opennms-data
+      - ./etc-overlay:/opt/opennms-etc-overlay
+      
+    # starting with cassandra option
+    command: ["-c"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-I", "http://localhost:8980/opennms/login.jsp"]
+      interval: 1m
+      timeout: 5s
+      retries: 3
+    ports:
+      - "8980:8980"
+      - "8101:8101"
+      - "61616:61616"
+      - "162:162/udp"
+      
+  # data stax cassandra
+  cassandra1:
+     container_name: cassandra1
+     image: cassandra:3.10
+     command: /bin/bash -c "sleep 1 && echo ' -- Pausing to let system catch up ... -->' && /docker-entrypoint.sh cassandra -f"
+     volumes:
+        -  cassandra1-data:/var/lib/cassandra
+        - ./cassandra-conf/jvm.options:/etc/cassandra/jvm.options
+     networks:
+      - opennms.net
+     ports:
+        - "7000:7000"
+        - "7001:7001"
+        - "9042:9042"
+        - "9160:9160"
+        - "7199:7199"
+     healthcheck:
+        test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+
+  helm:
+    container_name: opennms.helm
+    image: opennms/helm:latest
+    env_file:
+      - .helm.env
+    networks:
+      - opennms.net
+    depends_on:
+      - opennms
+    volumes:
+      - helm.data:/var/lib/grafana
+      - helm.data:/var/log/grafana
+      - helm.data:/etc/grafana
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-I", "http://localhost:3000/login"]
+      interval: 30s
+      timeout: 3s
+      retries: 1
+    ports:
+      - "3000:3000"

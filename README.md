@@ -95,6 +95,14 @@ To get a help for all available container options just run:
 docker run --rm opennms/horizon-core-web
 ```
 
+## running with Cassandra / Newts
+
+By default the OpenNMS horizon image will run using rrds for performance data storage. 
+However OpenNMS horizon can also be configured to run with Newts/Cassandra. 
+Additional Newts/Cassandra run options are included in the docker-entrypoint.sh.
+These options can initialise OpenNMS to use Newts and initialise the Newts tables in Cassandra.
+A docker-compose file is provided which illustrates how to run OpenNMS with a small single Cassandra node on the same machine.
+
 ## Set Java Options
 
 It is easily possible to add Java options to control the behavior of the JVM for performance tuning or debugging.
