@@ -23,6 +23,9 @@ OPENNMS_KARAF_CFG=${OPENNMS_HOME}/etc/org.apache.karaf.shell.cfg
 OPENNMS_NEWTS_TPL=/root/newts.properties.tpl
 OPENNMS_NEWTS_PROPERTIES=${OPENNMS_HOME}/etc/opennms.properties.d/newts.properties
 
+OPENNMS_JAVAMAIL_TPL=/root/javamail-configuration.properties.tpl
+OPENNMS_JAVAMAIL_PROPERTIES=${OPENNMS_HOME}/etc/javamail-configuration.properties
+
 # Error codes
 E_ILLEGAL_ARGS=126
 E_INIT_CONFIG=127
@@ -78,6 +81,7 @@ initConfig() {
     envsubst < ${OPENNMS_KARAF_TPL} > ${OPENNMS_KARAF_CFG}
     ${OPENNMS_HOME}/bin/runjava -s || exit ${E_INIT_CONFIG}
     ${OPENNMS_HOME}/bin/install -dis || exit ${E_INIT_CONFIG}
+    envsubst < ${OPENNMS_JAVAMAIL_TPL} > ${OPENNMS_JAVAMAIL_PROPERTIES}
   fi
 }
 
