@@ -6,20 +6,22 @@ ARG OPENNMS_VERSION=stable
 ARG MIRROR_HOST=yum.opennms.org
 ARG UID=10001
 
+ARG JICMP_RPM_URL=https://yum.opennms.org/stable/rhel7/jicmp/jicmp-2.0.3-1.el7.centos.x86_64.rpm
+ARG JICMP6_RPM_URL=https://yum.opennms.org/stable/rhel7/jicmp6/jicmp6-2.0.2-1.el7.centos.x86_64.rpm
+ARG JRRD2_RPM_URL=http://yum.opennms.org/stable/rhel7/jrrd2/jrrd2-2.0.3-4.el7.centos.x86_64.rpm
+
 ENV OPENNMS_KARAF_SSH_HOST 0.0.0.0
 ENV OPENNMS_KARAF_SSH_PORT 8101
 
 RUN yum -y --setopt=tsflags=nodocs update && \
     rpm -Uvh https://${MIRROR_HOST}/repofiles/opennms-repo-${OPENNMS_VERSION/\//-}-rhel7.noarch.rpm && \
     rpm --import https://${MIRROR_HOST}/OPENNMS-GPG-KEY && \
-    curl https://yum.opennms.org/stable/rhel7/jicmp/jicmp-2.0.3-1.el7.centos.x86_64.rpm -o /tmp/jicmp.rpm && \
-    curl https://yum.opennms.org/stable/rhel7/jicmp6/jicmp6-2.0.2-1.el7.centos.x86_64.rpm -o /tmp/jicmp6.rpm && \
-    yum -y install /tmp/jicmp.rpm && \
-    yum -y install /tmp/jicmp6.rpm && \
+    yum -y install ${JICMP_RPM_URL} && \
+    yum -y install ${JICMP6_RPM_URL} && \
+    yum -y install ${JRRD2_RPM_URL} && \
     yum -y install gettext \
                    iplike \
                    rrdtool \
-                   jrrd2 \
                    opennms-core \
                    opennms-webapp-jetty \
                    opennms-plugin-protocol-cifs \
